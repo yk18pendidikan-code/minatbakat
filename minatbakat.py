@@ -3,7 +3,7 @@ import pandas as pd
 
 st.set_page_config(page_title="Tes Minat & Bakat (RIASEC)", layout="centered")
 
-st.title("Tes Minat & Bakat - Model RIASEC")
+st.title("✨ Tes Minat & Bakat - Model RIASEC ✨")
 st.write("Jawablah setiap pernyataan sesuai dengan diri Anda.")
 st.write("Skala: 1 = Sangat Tidak Sesuai | 5 = Sangat Sesuai")
 
@@ -56,28 +56,34 @@ scores = {"R": 0, "I": 0, "A": 0, "S": 0, "E": 0, "C": 0}
 
 st.subheader("Silakan jawab pertanyaan berikut:")
 
-# Fungsi membuat opsi lingkaran 1-5
-def show_circles(selected):
-    circles = ""
-    for i in range(1, 6):
-        if i == selected:
-            circles += f"(🔵) {i}   "
-        else:
-            circles += f"(⚪) {i}   "
-    return circles
+# Fungsi untuk membuat opsi estetis
+def show_aesthetic_options(key_prefix):
+    cols = st.columns(5)
+    options = []
+    for i, col in enumerate(cols, start=1):
+        if col.button("⚪", key=f"{key_prefix}_{i}"):
+            options.append(i)
+    return options[0] if options else 3  # default 3
 
 for category, qs in questions.items():
-    st.markdown(f"### Bagian {category}")
+    st.markdown(f"### 🟢 Bagian {category}")
     for idx, q in enumerate(qs, start=1):
-        response = st.slider(f"{idx}. {q}", 1, 5, 3)
-        scores[category] += response
-        st.markdown(show_circles(response))  # <-- tampilkan baris lingkaran sebagai penanda opsi
+        st.markdown(f"**{idx}. {q}**")
+        choice = st.radio(
+            label="Pilih jawaban:",
+            options=[1,2,3,4,5],
+            index=2,
+            horizontal=True,
+            key=f"{category}_{idx}"
+        )
+        scores[category] += choice
+        st.markdown("---")  # pemisah antar pertanyaan
 
 # -----------------------------
 # HASIL
 # -----------------------------
 if st.button("Lihat Hasil"):
-    st.subheader("Hasil Tes Anda")
+    st.subheader("📊 Hasil Tes Anda")
     df = pd.DataFrame(scores.items(), columns=["Tipe", "Skor"])
     st.bar_chart(df.set_index("Tipe"))
 
@@ -95,4 +101,3 @@ if st.button("Lihat Hasil"):
     st.success(f"Tipe dominan Anda adalah: {dominant}")
     st.info(f"Rekomendasi bidang yang cocok: {rekomendasi[dominant]}")
     st.write("Catatan: Tes ini bersifat eksploratif dan bukan alat diagnosis profesional.")
-    
