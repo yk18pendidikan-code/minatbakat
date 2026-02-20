@@ -1,77 +1,73 @@
 import streamlit as st
 import pandas as pd
-import plotly.graph_objects as go
 
-st.set_page_config(page_title="Tes RIASEC Pro", layout="centered")
+st.set_page_config(page_title="Tes RIASEC Neutron", layout="centered")
 
 st.title("🎯 Tes Minat & Bakat (RIASEC)")
-st.write("Geser slider sesuai dengan seberapa cocok pernyataan tersebut dengan diri Anda.")
+st.write("Jawablah sesuai kepribadian Anda. Skala 1 (Tidak Sesuai) hingga 5 (Sangat Sesuai).")
 
 # Data Pertanyaan
 questions = {
-    "Realistic (R)": ["Bekerja dengan alat/mesin", "Aktivitas luar ruangan", "Memperbaiki barang", "Aktivitas fisik", "Bekerja dengan tangan"],
-    "Investigative (I)": ["Memecahkan masalah kompleks", "Riset/Eksperimen", "Menganalisis data", "Sains/Matematika", "Berpikir logis"],
-    "Artistic (A)": ["Menggambar/Mendesain", "Menulis cerita/puisi", "Musik/Seni", "Ekspresi kreatif", "Ide-ide baru"],
-    "Social (S)": ["Membantu orang lain", "Mengajar/Membimbing", "Bekerja dalam tim", "Kesejahteraan sesama", "Interaksi sosial"],
-    "Enterprising (E)": ["Memimpin kelompok", "Meyakinkan orang lain", "Bisnis/Wirausaha", "Mengambil keputusan", "Berkompetisi"],
-    "Conventional (C)": ["Pekerjaan terstruktur", "Ketelitian tugas", "Bekerja dengan angka", "Perencanaan rinci", "Mengikuti aturan"]
+    "Realistic (R)": ["Suka bekerja dengan alat/mesin", "Suka aktivitas luar ruangan", "Bisa memperbaiki barang rusak", "Menyukai aktivitas fisik", "Suka bekerja dengan tangan"],
+    "Investigative (I)": ["Suka memecahkan masalah rumit", "Senang riset atau eksperimen", "Suka menganalisis data", "Tertarik sains/matematika", "Berpikir logis & sistematis"],
+    "Artistic (A)": ["Suka menggambar/mendesain", "Suka menulis cerita/puisi", "Tertarik musik/seni", "Senang ekspresi kreatif", "Suka menciptakan ide baru"],
+    "Social (S)": ["Senang membantu orang lain", "Suka mengajar/membimbing", "Nyaman bekerja dalam tim", "Peduli kesejahteraan sesama", "Senang berinteraksi sosial"],
+    "Enterprising (E)": ["Suka memimpin kelompok", "Senang meyakinkan orang lain", "Tertarik bisnis/wirausaha", "Berani ambil keputusan", "Senang berkompetisi"],
+    "Conventional (C)": ["Suka kerja terstruktur", "Teliti dalam tugas", "Nyaman dengan angka/data", "Suka perencanaan rinci", "Patuh pada aturan"]
 }
 
-# Inisialisasi skor
-scores = {key: 0 for key in questions.keys()}
+# Inisialisasi skor di session state agar tidak hilang saat refresh
+if 'scores' not in st.session_state:
+    st.session_state.scores = {key: 0 for key in questions.keys()}
 
 # Form Input
-with st.form("riasec_form"):
+with st.form("quiz_form"):
     for category, qs in questions.items():
-        st.subheader(f"--- Bagian {category} ---")
+        st.markdown(f"### {category}")
         for i, q in enumerate(qs):
-            response = st.select_slider(
-                q, options=[1, 2, 3, 4, 5], value=3, key=f"{category}_{i}"
-            )
-            scores[category] += response
+            st.select_slider(q, options=[1, 2, 3, 4, 5], value=3, key=f"q_{category}_{i}")
     
-    submit = st.form_submit_button("Analisis Hasil Saya")
+    submitted = st.form_submit_button("Lihat Hasil Analisis")
 
-if submit:
+if submitted:
+    # Hitung Skor
+    current_scores = {key: 0 for key in questions.keys()}
+    for category in questions.keys():
+        for i in range(len(questions[category])):
+            current_scores[category] += st.session_state[f"q_{category}_{i}"]
+    
     st.divider()
-    st.header("📊 Analisis Profil Anda")
+    st.header("📊 Hasil Profil Minat Anda")
 
-    # Membuat Radar Chart
-    categories = list(scores.keys())
-    values = list(scores.values())
-    values += [values[0]]  # Menutup garis radar
-    categories += [categories[0]]
-
-    fig = go.Figure()
-    fig.add_trace(go.Scatterpolar(
-        r=values,
-        theta=categories,
-        fill='toself',
-        line_color='teal'
-    ))
-    fig.update_layout(polar=dict(radialaxis=dict(visible=True, range=[0, 25])), showlegend=False)
-    
-    st.plotly_chart(fig)
+    # Visualisasi dengan Bar Chart bawaan Streamlit (Tanpa Plotly)
+    chart_data = pd.DataFrame(current_scores.items(), columns=["Tipe", "Skor"]).set_index("Tipe")
+    st.bar_chart(chart_data)
 
     # Menentukan Top 3
-    sorted_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+    sorted_scores = sorted(current_scores.items(), key=lambda x: x[1], reverse=True)
     top_3 = sorted_scores[:3]
 
     rekomendasi = {
-        "Realistic (R)": "Teknik, Arsitektur, Otomotif, IT Hardware.",
-        "Investigative (I)": "Data Scientist, Peneliti, Dokter, Arkeolog.",
-        "Artistic (A)": "Desainer, Penulis, Musisi, Arsitek Kreatif.",
-        "Social (S)": "Guru, Psikolog, Perawat, HRD.",
-        "Enterprising (E)": "Manajer, Sales, Politisi, Entrepreneur.",
-        "Conventional (C)": "Akuntan, Notaris, Auditor, Admin Database."
+        "Realistic (R)": "Teknik, Arsitektur, Otomotif, Perkebunan.",
+        "Investigative (I)": "Peneliti, Dokter, Ahli IT, Ilmuwan.",
+        "Artistic (A)": "Desainer, Seniman, Penulis, Arsitek.",
+        "Social (S)": "Guru, Psikolog, Perawat, Konselor.",
+        "Enterprising (E)": "Pengusaha, Sales, Manajer, Hukum.",
+        "Conventional (C)": "Akuntan, Administrasi, Perbankan, Auditor."
     }
 
-    st.subheader("🏆 3 Tipe Dominan Anda:")
+    st.subheader("🏆 3 Tipe Dominan Anda")
+    
+    # Menampilkan hasil dalam kolom
     cols = st.columns(3)
-    for i, (label, score) in enumerate(top_3):
-        with cols[i]:
-            st.metric(label=f"Peringkat {i+1}", value=label.split()[0])
-            st.write(f"**Skor:** {score}")
-            st.caption(f"Fokus: {rekomendasi[label]}")
+    for idx, (label, score) in enumerate(top_3):
+        with cols[idx]:
+            st.info(f"**{idx+1}. {label.split()[0]}**")
+            st.write(f"Skor: **{score}**")
+            st.caption(f"Bidang: {rekomendasi[label]}")
 
-    st.success(f"Kode Holland Anda adalah: **{''.join([x[0][0] for x in top_3])}**")
+    # Menampilkan Kode Holland
+    holland_code = "".join([x[0][0] for x in top_3])
+    st.success(f"Kode Holland Anda adalah: **{holland_code}**")
+    
+    st.balloons()
