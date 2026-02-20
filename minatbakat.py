@@ -2,75 +2,74 @@ import streamlit as st
 import pandas as pd
 
 st.set_page_config(
-    page_title="Tes Minat & Bakat Neutron Murangan (RIASEC)",
+    page_title="Tes Minat & Bakat (RIASEC)",
     layout="centered"
 )
 
 # ===============================
-# RESPONSIVE CSS
+# CUSTOM CSS (WHITE + RED THEME)
 # ===============================
 st.markdown("""
 <style>
 
-/* Background */
+/* Background putih */
 .stApp {
-    background: red;
+    background-color: #ffffff;
     font-family: 'Segoe UI', sans-serif;
 }
 
-/* Main Card */
+/* Main container */
 .main-card {
-    background: white;
+    background: #ffffff;
     padding: 40px;
-    border-radius: 20px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+    border-radius: 12px;
     max-width: 900px;
     margin: auto;
 }
 
-/* Title */
+/* Title merah */
 .title {
     text-align: center;
-    font-size: 36px;
+    font-size: 34px;
     font-weight: 700;
-    color: #4b0082;
+    color: #c40000;
     margin-bottom: 10px;
 }
 
+/* Subtitle */
 .subtitle {
     text-align: center;
-    font-size: 16px;
-    color: #666;
+    font-size: 15px;
+    color: #555;
     margin-bottom: 30px;
 }
 
-/* Section Header */
+/* Section header */
 h3 {
     margin-top: 30px;
-    color: #333;
+    color: #c40000;
 }
 
-/* Button */
+/* Radio spacing */
+div[role="radiogroup"] {
+    margin-bottom: 20px;
+}
+
+/* Button merah */
 .stButton > button {
-    background: linear-gradient(90deg, #6C63FF, #5a52d4);
+    background-color: #c40000;
     color: white;
-    border-radius: 12px;
-    height: 50px;
+    border-radius: 8px;
+    height: 45px;
     width: 100%;
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 600;
     border: none;
-    transition: 0.3s;
 }
 
 .stButton > button:hover {
-    transform: scale(1.02);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-}
-
-/* Slider spacing */
-.stSlider {
-    margin-bottom: 20px;
+    background-color: #990000;
+    color: white;
 }
 
 /* Footer */
@@ -78,57 +77,21 @@ h3 {
     text-align: center;
     font-size: 13px;
     margin-top: 40px;
-    color: #888;
+    color: #777;
 }
 
-/* Tablet */
-@media (max-width: 992px) {
-    .main-card {
-        padding: 30px;
-    }
-
-    .title {
-        font-size: 28px;
-    }
-
-    .subtitle {
-        font-size: 14px;
-    }
-}
-
-/* Mobile */
+/* Responsive */
 @media (max-width: 600px) {
     .main-card {
         padding: 20px;
-        border-radius: 15px;
     }
 
     .title {
-        font-size: 22px;
+        font-size: 24px;
     }
 
     .subtitle {
         font-size: 13px;
-    }
-
-    .stButton > button {
-        font-size: 16px;
-        height: 45px;
-    }
-
-    h3 {
-        font-size: 16px;
-    }
-}
-
-/* Very Small Mobile */
-@media (max-width: 400px) {
-    .title {
-        font-size: 18px;
-    }
-
-    .subtitle {
-        font-size: 12px;
     }
 }
 
@@ -141,7 +104,7 @@ h3 {
 st.markdown('<div class="main-card">', unsafe_allow_html=True)
 
 st.markdown('<div class="title">Tes Minat & Bakat - RIASEC</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtitle">Skala 1 = Sangat Tidak Sesuai | 5 = Sangat Sesuai</div>', unsafe_allow_html=True)
+st.markdown('<div class="subtitle">Pilih jawaban yang paling sesuai dengan diri Anda</div>', unsafe_allow_html=True)
 
 # ===============================
 # DATA PERTANYAAN
@@ -191,6 +154,14 @@ questions = {
     ]
 }
 
+options = {
+    1: "1 - Sangat Tidak Sesuai",
+    2: "2 - Tidak Sesuai",
+    3: "3 - Netral",
+    4: "4 - Sesuai",
+    5: "5 - Sangat Sesuai"
+}
+
 scores = {key: 0 for key in questions.keys()}
 
 # ===============================
@@ -199,14 +170,13 @@ scores = {key: 0 for key in questions.keys()}
 for category, qs in questions.items():
     st.markdown(f"### Bagian {category}")
     for i, q in enumerate(qs):
-        response = st.slider(
-            label=q,
-            min_value=1,
-            max_value=5,
-            value=3,
+        choice = st.radio(
+            q,
+            options=list(options.keys()),
+            format_func=lambda x: options[x],
             key=f"{category}_{i}"
         )
-        scores[category] += response
+        scores[category] += choice
 
 # ===============================
 # HASIL
