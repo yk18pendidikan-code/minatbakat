@@ -1,103 +1,77 @@
 import streamlit as st
 import pandas as pd
+import plotly.graph_objects as go
 
-st.set_page_config(page_title="Tes Minat & Bakat (RIASEC)", layout="centered")
+st.set_page_config(page_title="Tes RIASEC Pro", layout="centered")
 
-st.title("✨ Tes Minat & Bakat - Model RIASEC ✨")
-st.write("Jawablah setiap pernyataan sesuai dengan diri Anda.")
-st.write("Skala: 1 = Sangat Tidak Sesuai | 5 = Sangat Sesuai")
+st.title("🎯 Tes Minat & Bakat (RIASEC)")
+st.write("Geser slider sesuai dengan seberapa cocok pernyataan tersebut dengan diri Anda.")
 
+# Data Pertanyaan
 questions = {
-    "R": [
-        "Saya senang bekerja dengan alat atau mesin.",
-        "Saya suka kegiatan di luar ruangan.",
-        "Saya tertarik memperbaiki barang rusak.",
-        "Saya menikmati aktivitas fisik.",
-        "Saya suka bekerja dengan tangan."
-    ],
-    "I": [
-        "Saya suka memecahkan masalah kompleks.",
-        "Saya menikmati penelitian atau eksperimen.",
-        "Saya senang menganalisis data.",
-        "Saya tertarik pada sains atau matematika.",
-        "Saya suka berpikir logis dan sistematis."
-    ],
-    "A": [
-        "Saya menikmati menggambar atau mendesain.",
-        "Saya suka menulis cerita atau puisi.",
-        "Saya tertarik pada musik atau seni pertunjukan.",
-        "Saya senang mengekspresikan diri secara kreatif.",
-        "Saya suka menciptakan ide-ide baru."
-    ],
-    "S": [
-        "Saya senang membantu orang lain.",
-        "Saya suka mengajar atau membimbing.",
-        "Saya nyaman bekerja dalam tim.",
-        "Saya peduli terhadap kesejahteraan orang lain.",
-        "Saya senang berinteraksi dengan banyak orang."
-    ],
-    "E": [
-        "Saya suka memimpin kelompok.",
-        "Saya senang meyakinkan orang lain.",
-        "Saya tertarik pada bisnis atau wirausaha.",
-        "Saya suka mengambil keputusan penting.",
-        "Saya senang berkompetisi."
-    ],
-    "C": [
-        "Saya suka pekerjaan yang terstruktur.",
-        "Saya teliti dalam mengerjakan tugas.",
-        "Saya nyaman bekerja dengan angka atau data.",
-        "Saya suka membuat perencanaan rinci.",
-        "Saya mengikuti aturan dengan baik."
-    ]
+    "Realistic (R)": ["Bekerja dengan alat/mesin", "Aktivitas luar ruangan", "Memperbaiki barang", "Aktivitas fisik", "Bekerja dengan tangan"],
+    "Investigative (I)": ["Memecahkan masalah kompleks", "Riset/Eksperimen", "Menganalisis data", "Sains/Matematika", "Berpikir logis"],
+    "Artistic (A)": ["Menggambar/Mendesain", "Menulis cerita/puisi", "Musik/Seni", "Ekspresi kreatif", "Ide-ide baru"],
+    "Social (S)": ["Membantu orang lain", "Mengajar/Membimbing", "Bekerja dalam tim", "Kesejahteraan sesama", "Interaksi sosial"],
+    "Enterprising (E)": ["Memimpin kelompok", "Meyakinkan orang lain", "Bisnis/Wirausaha", "Mengambil keputusan", "Berkompetisi"],
+    "Conventional (C)": ["Pekerjaan terstruktur", "Ketelitian tugas", "Bekerja dengan angka", "Perencanaan rinci", "Mengikuti aturan"]
 }
 
-scores = {"R": 0, "I": 0, "A": 0, "S": 0, "E": 0, "C": 0}
+# Inisialisasi skor
+scores = {key: 0 for key in questions.keys()}
 
-st.subheader("Silakan jawab pertanyaan berikut:")
+# Form Input
+with st.form("riasec_form"):
+    for category, qs in questions.items():
+        st.subheader(f"--- Bagian {category} ---")
+        for i, q in enumerate(qs):
+            response = st.select_slider(
+                q, options=[1, 2, 3, 4, 5], value=3, key=f"{category}_{i}"
+            )
+            scores[category] += response
+    
+    submit = st.form_submit_button("Analisis Hasil Saya")
 
-# Fungsi untuk membuat opsi estetis
-def show_aesthetic_options(key_prefix):
-    cols = st.columns(5)
-    options = []
-    for i, col in enumerate(cols, start=1):
-        if col.button("⚪", key=f"{key_prefix}_{i}"):
-            options.append(i)
-    return options[0] if options else 3  # default 3
+if submit:
+    st.divider()
+    st.header("📊 Analisis Profil Anda")
 
-for category, qs in questions.items():
-    st.markdown(f"### 🟢 Bagian {category}")
-    for idx, q in enumerate(qs, start=1):
-        st.markdown(f"**{idx}. {q}**")
-        choice = st.radio(
-            label="Pilih jawaban:",
-            options=[1,2,3,4,5],
-            index=2,
-            horizontal=True,
-            key=f"{category}_{idx}"
-        )
-        scores[category] += choice
-        st.markdown("---")  # pemisah antar pertanyaan
+    # Membuat Radar Chart
+    categories = list(scores.keys())
+    values = list(scores.values())
+    values += [values[0]]  # Menutup garis radar
+    categories += [categories[0]]
 
-# -----------------------------
-# HASIL
-# -----------------------------
-if st.button("Lihat Hasil"):
-    st.subheader("📊 Hasil Tes Anda")
-    df = pd.DataFrame(scores.items(), columns=["Tipe", "Skor"])
-    st.bar_chart(df.set_index("Tipe"))
+    fig = go.Figure()
+    fig.add_trace(go.Scatterpolar(
+        r=values,
+        theta=categories,
+        fill='toself',
+        line_color='teal'
+    ))
+    fig.update_layout(polar=dict(radialaxis=dict(visible=True, range=[0, 25])), showlegend=False)
+    
+    st.plotly_chart(fig)
 
-    dominant = max(scores, key=scores.get)
+    # Menentukan Top 3
+    sorted_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+    top_3 = sorted_scores[:3]
 
     rekomendasi = {
-        "R": "Teknik, Arsitektur, Otomotif, Teknologi Industri",
-        "I": "Ilmu Data, Penelitian, Kedokteran, Sains",
-        "A": "Desain Grafis, Musik, Seni, Penulisan",
-        "S": "Psikologi, Pendidikan, Konseling, Keperawatan",
-        "E": "Bisnis, Manajemen, Marketing, Wirausaha",
-        "C": "Akuntansi, Administrasi, Keuangan, Analis Data"
+        "Realistic (R)": "Teknik, Arsitektur, Otomotif, IT Hardware.",
+        "Investigative (I)": "Data Scientist, Peneliti, Dokter, Arkeolog.",
+        "Artistic (A)": "Desainer, Penulis, Musisi, Arsitek Kreatif.",
+        "Social (S)": "Guru, Psikolog, Perawat, HRD.",
+        "Enterprising (E)": "Manajer, Sales, Politisi, Entrepreneur.",
+        "Conventional (C)": "Akuntan, Notaris, Auditor, Admin Database."
     }
 
-    st.success(f"Tipe dominan Anda adalah: {dominant}")
-    st.info(f"Rekomendasi bidang yang cocok: {rekomendasi[dominant]}")
-    st.write("Catatan: Tes ini bersifat eksploratif dan bukan alat diagnosis profesional.")
+    st.subheader("🏆 3 Tipe Dominan Anda:")
+    cols = st.columns(3)
+    for i, (label, score) in enumerate(top_3):
+        with cols[i]:
+            st.metric(label=f"Peringkat {i+1}", value=label.split()[0])
+            st.write(f"**Skor:** {score}")
+            st.caption(f"Fokus: {rekomendasi[label]}")
+
+    st.success(f"Kode Holland Anda adalah: **{''.join([x[0][0] for x in top_3])}**")
