@@ -17,7 +17,7 @@ if "submitted_once" not in st.session_state:
 
 # Jika belum login
 if not st.session_state.akses_granted:
-    st.title("🔐 Akses Tes RIASEC")
+    st.title("🔐 Akses Tes RIASEC Neutron Murangan")
     kode_input = st.text_input("Masukkan Kode Akses", type="password")
 
     if st.button("Masuk"):
