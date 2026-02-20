@@ -7,34 +7,29 @@ st.set_page_config(
 )
 
 # ===============================
-# CUSTOM CSS (FIX KONTRAS + CARD)
+# CUSTOM CSS
 # ===============================
 st.markdown("""
 <style>
 
-/* Background putih */
+/* BODY BACKGROUND */
 .stApp {
     background-color: #f4f6f9;
     font-family: 'Segoe UI', sans-serif;
 }
 
-/* Card Container */
+/* MAIN CARD */
 .card {
     background: #ffffff;
     padding: 40px;
     border-radius: 14px;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
     max-width: 900px;
-    margin: auto;
+    margin: 30px auto;
     border: 1px solid #eee;
 }
 
-/* Paksa semua teks jadi gelap */
-h1, h2, h3, h4, h5, h6, p, label, div {
-    color: #222 !important;
-}
-
-/* Title merah */
+/* TITLE MERAH */
 .title {
     text-align: center;
     font-size: 34px;
@@ -43,26 +38,26 @@ h1, h2, h3, h4, h5, h6, p, label, div {
     margin-bottom: 10px;
 }
 
-/* Subtitle */
+/* SUBTITLE */
 .subtitle {
     text-align: center;
     font-size: 15px;
-    color: #444 !important;
+    color: #222 !important;
     margin-bottom: 30px;
 }
 
-/* Section header */
+/* SECTION HEADER */
 h3 {
     margin-top: 30px;
     color: #c40000 !important;
 }
 
-/* Radio spacing */
+/* RADIO SPACING */
 div[role="radiogroup"] {
     margin-bottom: 20px;
 }
 
-/* Button merah */
+/* BUTTON MERAH */
 .stButton > button {
     background-color: #c40000;
     color: white !important;
@@ -79,7 +74,7 @@ div[role="radiogroup"] {
     color: white !important;
 }
 
-/* Footer */
+/* FOOTER */
 .footer {
     text-align: center;
     font-size: 13px;
@@ -87,7 +82,12 @@ div[role="radiogroup"] {
     color: #777 !important;
 }
 
-/* Responsive */
+/* CHART PUTIH */
+[data-testid="stVerticalBlock"] .stBarChart svg {
+    background-color: #ffffff !important;
+}
+
+/* RESPONSIVE */
 @media (max-width: 600px) {
     .card {
         padding: 20px;
@@ -100,13 +100,17 @@ div[role="radiogroup"] {
     .subtitle {
         font-size: 13px;
     }
+
+    h3 {
+        font-size: 16px;
+    }
 }
 
 </style>
 """, unsafe_allow_html=True)
 
 # ===============================
-# START CARD CONTAINER
+# CARD CONTAINER START
 # ===============================
 st.markdown('<div class="card">', unsafe_allow_html=True)
 
@@ -208,9 +212,12 @@ if st.button("Lihat Hasil"):
     st.success(f"Tipe dominan Anda adalah: {dominant}")
     st.info(f"Rekomendasi bidang: {rekomendasi[dominant]}")
 
+# ===============================
+# FOOTER
+# ===============================
 st.markdown('<div class="footer">© 2026 Tes Minat & Bakat RIASEC</div>', unsafe_allow_html=True)
 
 # ===============================
-# END CARD
+# CARD CONTAINER END
 # ===============================
 st.markdown('</div>', unsafe_allow_html=True)
