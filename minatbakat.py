@@ -56,22 +56,22 @@ scores = {"R": 0, "I": 0, "A": 0, "S": 0, "E": 0, "C": 0}
 
 st.subheader("Silakan jawab pertanyaan berikut:")
 
-# Fungsi untuk menampilkan opsi jawaban dengan lingkaran
-def show_options(selected):
-    options = ""
+# Fungsi membuat opsi lingkaran 1-5
+def show_circles(selected):
+    circles = ""
     for i in range(1, 6):
         if i == selected:
-            options += "🔵 "  # lingkaran biru untuk jawaban terpilih
+            circles += f"(🔵) {i}   "
         else:
-            options += "⚪ "  # lingkaran putih untuk jawaban lain
-    return options
+            circles += f"(⚪) {i}   "
+    return circles
 
 for category, qs in questions.items():
     st.markdown(f"### Bagian {category}")
     for idx, q in enumerate(qs, start=1):
         response = st.slider(f"{idx}. {q}", 1, 5, 3)
         scores[category] += response
-        st.markdown(show_options(response))  # tampilkan lingkaran sesuai pilihan
+        st.markdown(show_circles(response))  # <-- tampilkan baris lingkaran sebagai penanda opsi
 
 # -----------------------------
 # HASIL
@@ -95,3 +95,4 @@ if st.button("Lihat Hasil"):
     st.success(f"Tipe dominan Anda adalah: {dominant}")
     st.info(f"Rekomendasi bidang yang cocok: {rekomendasi[dominant]}")
     st.write("Catatan: Tes ini bersifat eksploratif dan bukan alat diagnosis profesional.")
+    
