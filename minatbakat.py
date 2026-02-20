@@ -3,7 +3,7 @@ import pandas as pd
 
 st.set_page_config(page_title="Tes RIASEC Neutron", layout="centered")
 
-st.title("🎯 Tes Minat & Bakat (RIASEC)")
+st.title("🎯 Tes Minat & Bakat (RIASEC) Neutron Murangan")
 st.write("Jawablah sesuai kepribadian Anda. Skala 1 (Tidak Sesuai) hingga 5 (Sangat Sesuai).")
 
 # Data Pertanyaan
@@ -52,7 +52,7 @@ if submitted:
         "Investigative (I)": "Peneliti, Dokter, Ahli IT, Ilmuwan.",
         "Artistic (A)": "Desainer, Seniman, Penulis, Arsitek.",
         "Social (S)": "Guru, Psikolog, Perawat, Konselor.",
-        "Enterprising (E)": "Pengusaha, Sales, Manajer, Hukum.",
+        "Enterprising (E)": "Pengusaha, Marketing, Manajer, Hukum.",
         "Conventional (C)": "Akuntan, Administrasi, Perbankan, Auditor."
     }
 
