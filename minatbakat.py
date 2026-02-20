@@ -1,8 +1,6 @@
 import streamlit as st
 import pandas as pd
-from io import BytesIO
-from reportlab.lib.pagesizes import A4
-from reportlab.pdfgen import canvas
+from io import StringIO
 
 st.set_page_config(
     page_title="Tes Minat & Bakat (RIASEC)",
@@ -96,29 +94,16 @@ if st.button("Lihat Hasil"):
     st.caption("Tes ini berbasis teori RIASEC (Holland Code) dan bersifat eksploratif.")
 
     # =========================
-    # BAGIAN DOWNLOAD PDF
+    # DOWNLOAD HASIL SEBAGAI CSV
     # =========================
-    def generate_pdf(scores_dict, dominant_type):
-        buffer = BytesIO()
-        c = canvas.Canvas(buffer, pagesize=A4)
-        width, height = A4
-        c.setFont("Helvetica-Bold", 16)
-        c.drawString(50, height - 50, "Hasil Tes Minat & Bakat RIASEC")
-        c.setFont("Helvetica", 12)
-        y = height - 100
-        for t, score in scores_dict.items():
-            c.drawString(50, y, f"{t}: {score}")
-            y -= 20
-        c.drawString(50, y-10, f"Tipe Dominan: {dominant_type}")
-        c.showPage()
-        c.save()
-        buffer.seek(0)
-        return buffer
+    df['Rekomendasi'] = df['Tipe'].map(rekomendasi)
+    csv_buffer = StringIO()
+    df.to_csv(csv_buffer, index=False)
+    csv_buffer.seek(0)
 
-    pdf_buffer = generate_pdf(scores, dominant)
     st.download_button(
-        label="Download Hasil PDF",
-        data=pdf_buffer,
-        file_name="Hasil_RIASEC.pdf",
-        mime="application/pdf"
+        label="Download Hasil CSV",
+        data=csv_buffer,
+        file_name="Hasil_RIASEC.csv",
+        mime="text/csv"
     )
