@@ -3,10 +3,45 @@ import pandas as pd
 
 st.set_page_config(page_title="Tes RIASEC Neutron", layout="centered")
 
+# =========================
+# SISTEM AKSES & BATAS 1X
+# =========================
+
+AKSES_KODE = "23/02/2026"
+
+if "akses_granted" not in st.session_state:
+    st.session_state.akses_granted = False
+
+if "submitted_once" not in st.session_state:
+    st.session_state.submitted_once = False
+
+# Jika belum login
+if not st.session_state.akses_granted:
+    st.title("🔐 Akses Tes RIASEC")
+    kode_input = st.text_input("Masukkan Kode Akses", type="password")
+
+    if st.button("Masuk"):
+        if kode_input == AKSES_KODE:
+            st.session_state.akses_granted = True
+            st.success("Akses diterima ✅")
+            st.rerun()
+        else:
+            st.error("Kode akses salah ❌")
+
+    st.stop()
+
+# Jika sudah pernah submit
+if st.session_state.submitted_once:
+    st.warning("⚠️ Anda sudah mengerjakan tes ini. Tes hanya dapat dikerjakan 1 kali.")
+    st.stop()
+
+# =========================
+# APLIKASI TES
+# =========================
+
 st.title("🎯 Tes Minat & Bakat (RIASEC) Neutron Murangan")
 st.write("Jawablah sesuai kepribadian Anda. Skala 1 (Tidak Sesuai) hingga 5 (Sangat Sesuai).")
 
-# Data Pertanyaan
 questions = {
     "Realistic (R)": ["Suka bekerja dengan alat/mesin", "Suka aktivitas luar ruangan", "Bisa memperbaiki barang rusak", "Menyukai aktivitas fisik", "Suka bekerja dengan tangan"],
     "Investigative (I)": ["Suka memecahkan masalah rumit", "Senang riset atau eksperimen", "Suka menganalisis data", "Tertarik sains/matematika", "Berpikir logis & sistematis"],
@@ -16,11 +51,6 @@ questions = {
     "Conventional (C)": ["Suka kerja terstruktur", "Teliti dalam tugas", "Nyaman dengan angka/data", "Suka perencanaan rinci", "Patuh pada aturan"]
 }
 
-# Inisialisasi skor di session state agar tidak hilang saat refresh
-if 'scores' not in st.session_state:
-    st.session_state.scores = {key: 0 for key in questions.keys()}
-
-# Form Input
 with st.form("quiz_form"):
     for category, qs in questions.items():
         st.markdown(f"### {category}")
@@ -30,7 +60,9 @@ with st.form("quiz_form"):
     submitted = st.form_submit_button("Lihat Hasil Analisis")
 
 if submitted:
-    # Hitung Skor
+    # Tandai sudah mengerjakan
+    st.session_state.submitted_once = True
+
     current_scores = {key: 0 for key in questions.keys()}
     for category in questions.keys():
         for i in range(len(questions[category])):
@@ -39,11 +71,9 @@ if submitted:
     st.divider()
     st.header("📊 Hasil Profil Minat Anda")
 
-    # Visualisasi dengan Bar Chart bawaan Streamlit (Tanpa Plotly)
     chart_data = pd.DataFrame(current_scores.items(), columns=["Tipe", "Skor"]).set_index("Tipe")
     st.bar_chart(chart_data)
 
-    # Menentukan Top 3
     sorted_scores = sorted(current_scores.items(), key=lambda x: x[1], reverse=True)
     top_3 = sorted_scores[:3]
 
@@ -58,7 +88,6 @@ if submitted:
 
     st.subheader("🏆 3 Tipe Dominan Anda")
     
-    # Menampilkan hasil dalam kolom
     cols = st.columns(3)
     for idx, (label, score) in enumerate(top_3):
         with cols[idx]:
@@ -66,7 +95,6 @@ if submitted:
             st.write(f"Skor: **{score}**")
             st.caption(f"Bidang: {rekomendasi[label]}")
 
-    # Menampilkan Kode Holland
     holland_code = "".join([x[0][0] for x in top_3])
     st.success(f"Kode Holland Anda adalah: **{holland_code}**")
     
