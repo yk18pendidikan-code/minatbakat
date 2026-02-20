@@ -7,24 +7,31 @@ st.set_page_config(
 )
 
 # ===============================
-# CUSTOM CSS (WHITE + RED THEME)
+# CUSTOM CSS (FIX KONTRAS + CARD)
 # ===============================
 st.markdown("""
 <style>
 
 /* Background putih */
 .stApp {
-    background-color: #ffffff;
+    background-color: #f4f6f9;
     font-family: 'Segoe UI', sans-serif;
 }
 
-/* Main container */
-.main-card {
+/* Card Container */
+.card {
     background: #ffffff;
     padding: 40px;
-    border-radius: 12px;
+    border-radius: 14px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
     max-width: 900px;
     margin: auto;
+    border: 1px solid #eee;
+}
+
+/* Paksa semua teks jadi gelap */
+h1, h2, h3, h4, h5, h6, p, label, div {
+    color: #222 !important;
 }
 
 /* Title merah */
@@ -32,7 +39,7 @@ st.markdown("""
     text-align: center;
     font-size: 34px;
     font-weight: 700;
-    color: #c40000;
+    color: #c40000 !important;
     margin-bottom: 10px;
 }
 
@@ -40,14 +47,14 @@ st.markdown("""
 .subtitle {
     text-align: center;
     font-size: 15px;
-    color: #555;
+    color: #444 !important;
     margin-bottom: 30px;
 }
 
 /* Section header */
 h3 {
     margin-top: 30px;
-    color: #c40000;
+    color: #c40000 !important;
 }
 
 /* Radio spacing */
@@ -58,7 +65,7 @@ div[role="radiogroup"] {
 /* Button merah */
 .stButton > button {
     background-color: #c40000;
-    color: white;
+    color: white !important;
     border-radius: 8px;
     height: 45px;
     width: 100%;
@@ -69,7 +76,7 @@ div[role="radiogroup"] {
 
 .stButton > button:hover {
     background-color: #990000;
-    color: white;
+    color: white !important;
 }
 
 /* Footer */
@@ -77,12 +84,12 @@ div[role="radiogroup"] {
     text-align: center;
     font-size: 13px;
     margin-top: 40px;
-    color: #777;
+    color: #777 !important;
 }
 
 /* Responsive */
 @media (max-width: 600px) {
-    .main-card {
+    .card {
         padding: 20px;
     }
 
@@ -99,9 +106,9 @@ div[role="radiogroup"] {
 """, unsafe_allow_html=True)
 
 # ===============================
-# HEADER
+# START CARD CONTAINER
 # ===============================
-st.markdown('<div class="main-card">', unsafe_allow_html=True)
+st.markdown('<div class="card">', unsafe_allow_html=True)
 
 st.markdown('<div class="title">Tes Minat & Bakat - RIASEC</div>', unsafe_allow_html=True)
 st.markdown('<div class="subtitle">Pilih jawaban yang paling sesuai dengan diri Anda</div>', unsafe_allow_html=True)
@@ -202,4 +209,8 @@ if st.button("Lihat Hasil"):
     st.info(f"Rekomendasi bidang: {rekomendasi[dominant]}")
 
 st.markdown('<div class="footer">© 2026 Tes Minat & Bakat RIASEC</div>', unsafe_allow_html=True)
+
+# ===============================
+# END CARD
+# ===============================
 st.markdown('</div>', unsafe_allow_html=True)
