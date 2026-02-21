@@ -24,7 +24,7 @@ if not st.session_state.akses_granted:
         if kode_input == AKSES_KODE:
             st.session_state.akses_granted = True
             st.success("Akses diterima ✅")
-            st.experimental_rerun()
+            st.rerun()  # <-- ganti experimental_rerun() menjadi rerun()
         else:
             st.error("Kode akses salah ❌")
     st.stop()
@@ -126,3 +126,4 @@ if submitted:
         file_name="hasil_tes_riasec.pdf",
         mime="application/pdf"
     )
+    
