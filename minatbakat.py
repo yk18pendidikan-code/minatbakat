@@ -1,15 +1,13 @@
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
 from fpdf import FPDF
-from io import BytesIO
+import tempfile
 
 st.set_page_config(page_title="Tes RIASEC Neutron", layout="centered")
 
 # =========================
 # SISTEM AKSES & BATAS 1X
 # =========================
-
 AKSES_KODE = "neutronmurangan"
 
 if "akses_granted" not in st.session_state:
@@ -36,7 +34,6 @@ if st.session_state.submitted_once:
 # =========================
 # APLIKASI TES
 # =========================
-
 st.title("🎯 Tes Minat & Bakat (RIASEC) Neutron Murangan")
 st.write("Jawablah sesuai kepribadian Anda. Skala 1 (Tidak Sesuai) hingga 5 (Sangat Sesuai).")
 
@@ -54,7 +51,6 @@ with st.form("quiz_form"):
         st.markdown(f"### {category}")
         for i, q in enumerate(qs):
             st.select_slider(q, options=[1, 2, 3, 4, 5], value=3, key=f"q_{category}_{i}")
-    
     submitted = st.form_submit_button("Lihat Hasil Analisis")
 
 if submitted:
@@ -69,13 +65,9 @@ if submitted:
     st.divider()
     st.header("📊 Hasil Profil Minat Anda")
 
-    # Buat grafik bar
-    fig, ax = plt.subplots(figsize=(8,5))
-    colors = ['#4c72b0','#55a868','#c44e52','#8172b2','#ccb974','#64b5cd']
-    ax.bar(current_scores.keys(), current_scores.values(), color=colors)
-    ax.set_ylabel("Skor")
-    ax.set_title("Hasil Tes RIASEC")
-    st.pyplot(fig)
+    # Tampilkan skor sederhana di Streamlit
+    df_scores = pd.DataFrame(current_scores.items(), columns=["Tipe", "Skor"]).set_index("Tipe")
+    st.bar_chart(df_scores)
 
     # Top 3
     sorted_scores = sorted(current_scores.items(), key=lambda x: x[1], reverse=True)
@@ -103,11 +95,11 @@ if submitted:
     st.balloons()
 
     # =========================
-    # PDF Laporan Profesional
+    # PDF Profesional Tanpa matplotlib
     # =========================
     pdf = FPDF(orientation="P", unit="mm", format="A4")
     pdf.add_page()
-    
+
     # Header
     pdf.set_font("Arial", "B", 18)
     pdf.cell(0, 10, "Laporan Hasil Tes RIASEC", ln=True, align="C")
@@ -138,15 +130,24 @@ if submitted:
         pdf.cell(0, 7, f"{idx+1}. {label} - Skor: {score} | Bidang: {rekomendasi[label]}", ln=True)
     pdf.ln(5)
     pdf.cell(0, 8, f"Holland Code: {holland_code}", ln=True)
+    pdf.ln(5)
 
-    # Tambahkan grafik
-    img_buffer = BytesIO()
-    fig.savefig(img_buffer, format='png', dpi=150)
-    img_buffer.seek(0)
-    pdf.image(img_buffer, x=15, w=180)
-    
+    # =========================
+    # Buat grafik sederhana dengan kotak
+    # =========================
+    max_score = 25  # skor maksimum tiap tipe
+    bar_width = 100  # panjang maksimal bar
+    bar_height = 7
+    colors = ["#4c72b0","#55a868","#c44e52","#8172b2","#ccb974","#64b5cd"]
+
+    for i, (tipe, score) in enumerate(current_scores.items()):
+        pdf.set_fill_color(*[int(colors[i][j:j+2],16) for j in (1,3,5)])  # konversi hex ke RGB
+        bar_len = int(score / max_score * bar_width)
+        pdf.cell(40, bar_height, tipe, border=0)
+        pdf.cell(bar_len, bar_height, "", border=1, ln=1, fill=True)
+
     # Tombol download
-    pdf_buffer = BytesIO()
-    pdf.output(pdf_buffer)
+    pdf_buffer = tempfile.NamedTemporaryFile(suffix=".pdf", delete=False)
+    pdf.output(pdf_buffer.name)
     pdf_buffer.seek(0)
     st.download_button("⬇️ Unduh Laporan PDF Profesional", data=pdf_buffer, file_name="laporan_riasec.pdf", mime="application/pdf")
