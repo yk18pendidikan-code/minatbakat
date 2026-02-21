@@ -24,7 +24,7 @@ if not st.session_state.akses_granted:
         if kode_input == AKSES_KODE:
             st.session_state.akses_granted = True
             st.success("Akses diterima ✅")
-            st.rerun()  # <-- ganti experimental_rerun() menjadi rerun()
+            st.rerun()
         else:
             st.error("Kode akses salah ❌")
     st.stop()
@@ -99,7 +99,7 @@ if submitted:
     st.balloons()
 
     # =========================
-    # FUNGSI PDF
+    # FUNGSI PDF (tanpa emoji)
     # =========================
     def create_pdf(scores, top3, holland_code):
         pdf = FPDF()
@@ -108,11 +108,11 @@ if submitted:
         pdf.cell(0, 10, "Hasil Tes RIASEC Neutron Murangan", ln=True, align="C")
         pdf.ln(10)
         pdf.set_font("Arial", "", 12)
-        pdf.cell(0, 10, "📊 Skor Tiap Tipe:", ln=True)
+        pdf.cell(0, 10, "Skor Tiap Tipe:", ln=True)
         for tipe, skor in scores.items():
             pdf.cell(0, 8, f"- {tipe}: {skor}", ln=True)
         pdf.ln(5)
-        pdf.cell(0, 10, "🏆 3 Tipe Dominan:", ln=True)
+        pdf.cell(0, 10, "3 Tipe Dominan:", ln=True)
         for idx, (label, score) in enumerate(top3):
             pdf.cell(0, 8, f"{idx+1}. {label} - Skor: {score} - Bidang: {rekomendasi[label]}", ln=True)
         pdf.ln(5)
@@ -121,9 +121,8 @@ if submitted:
 
     pdf_data = create_pdf(current_scores, top_3, holland_code)
     st.download_button(
-        label="📄 Unduh Hasil PDF",
+        label="Unduh Hasil PDF",
         data=pdf_data,
         file_name="hasil_tes_riasec.pdf",
         mime="application/pdf"
     )
-    
