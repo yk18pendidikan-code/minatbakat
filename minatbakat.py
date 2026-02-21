@@ -3,6 +3,7 @@ import pandas as pd
 from fpdf import FPDF
 import requests
 from io import BytesIO
+import tempfile
 
 st.set_page_config(page_title="Tes RIASEC Neutron", layout="centered")
 
@@ -101,7 +102,7 @@ if submitted:
     st.balloons()
 
     # =========================
-    # FUNGSI PDF DENGAN LOGO DARI GOOGLE DRIVE
+    # FUNGSI PDF DENGAN LOGO GOOGLE DRIVE
     # =========================
     def create_pdf(scores, top3, holland_code, logo_url=None):
         pdf = FPDF()
@@ -112,8 +113,12 @@ if submitted:
             try:
                 response = requests.get(logo_url)
                 if response.status_code == 200:
-                    logo_bytes = BytesIO(response.content)
-                    pdf.image(logo_bytes, x=80, y=8, w=50)
+                    # Simpan ke file sementara
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp_file:
+                        tmp_file.write(response.content)
+                        tmp_file_path = tmp_file.name
+                    # Tambahkan logo ke PDF
+                    pdf.image(tmp_file_path, x=80, y=8, w=50)
                     pdf.ln(25)
                 else:
                     pdf.ln(25)
@@ -125,17 +130,20 @@ if submitted:
         pdf.cell(0, 10, "Hasil Tes RIASEC Neutron Murangan", ln=True, align="C")
         pdf.ln(10)
 
+        # Skor tiap tipe
         pdf.set_font("Arial", "", 12)
         pdf.cell(0, 10, "Skor Tiap Tipe:", ln=True)
         for tipe, skor in scores.items():
             pdf.cell(0, 8, f"- {tipe}: {skor}", ln=True)
         pdf.ln(5)
 
+        # 3 Tipe Dominan
         pdf.cell(0, 10, "3 Tipe Dominan:", ln=True)
         for idx, (label, score) in enumerate(top3):
             pdf.cell(0, 8, f"{idx+1}. {label} - Skor: {score} - Bidang: {rekomendasi[label]}", ln=True)
         pdf.ln(5)
 
+        # Kode Holland
         pdf.cell(0, 10, f"Kode Holland: {holland_code}", ln=True)
         return pdf.output(dest="S").encode("latin1")
 
