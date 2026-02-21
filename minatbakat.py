@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 from fpdf import FPDF
+import requests
+from io import BytesIO
 
 st.set_page_config(page_title="Tes RIASEC Neutron", layout="centered")
 
@@ -99,27 +101,49 @@ if submitted:
     st.balloons()
 
     # =========================
-    # FUNGSI PDF (tanpa emoji)
+    # FUNGSI PDF DENGAN LOGO DARI GOOGLE DRIVE
     # =========================
-    def create_pdf(scores, top3, holland_code):
+    def create_pdf(scores, top3, holland_code, logo_url=None):
         pdf = FPDF()
         pdf.add_page()
+
+        # Tambahkan logo dari URL
+        if logo_url:
+            try:
+                response = requests.get(logo_url)
+                if response.status_code == 200:
+                    logo_bytes = BytesIO(response.content)
+                    pdf.image(logo_bytes, x=80, y=8, w=50)
+                    pdf.ln(25)
+                else:
+                    pdf.ln(25)
+            except:
+                pdf.ln(25)
+
+        # Judul PDF
         pdf.set_font("Arial", "B", 16)
         pdf.cell(0, 10, "Hasil Tes RIASEC Neutron Murangan", ln=True, align="C")
         pdf.ln(10)
+
         pdf.set_font("Arial", "", 12)
         pdf.cell(0, 10, "Skor Tiap Tipe:", ln=True)
         for tipe, skor in scores.items():
             pdf.cell(0, 8, f"- {tipe}: {skor}", ln=True)
         pdf.ln(5)
+
         pdf.cell(0, 10, "3 Tipe Dominan:", ln=True)
         for idx, (label, score) in enumerate(top3):
             pdf.cell(0, 8, f"{idx+1}. {label} - Skor: {score} - Bidang: {rekomendasi[label]}", ln=True)
         pdf.ln(5)
+
         pdf.cell(0, 10, f"Kode Holland: {holland_code}", ln=True)
         return pdf.output(dest="S").encode("latin1")
 
-    pdf_data = create_pdf(current_scores, top_3, holland_code)
+    # Link direct download Google Drive
+    logo_drive_url = "https://drive.google.com/uc?export=download&id=12Q3ZaJZleKvKdA-vtGGOSjufIvbihMaf"
+
+    pdf_data = create_pdf(current_scores, top_3, holland_code, logo_url=logo_drive_url)
+
     st.download_button(
         label="Unduh Hasil PDF",
         data=pdf_data,
