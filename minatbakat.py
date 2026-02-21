@@ -7,7 +7,7 @@ st.set_page_config(page_title="Tes RIASEC Neutron", layout="centered")
 # SISTEM AKSES & BATAS 1X
 # =========================
 
-AKSES_KODE = "23/02/2026"
+AKSES_KODE = "neutronmurangan"
 
 if "akses_granted" not in st.session_state:
     st.session_state.akses_granted = False
